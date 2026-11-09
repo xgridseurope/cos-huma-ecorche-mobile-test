@@ -1,0 +1,138 @@
+{
+ ".nojekyll": {
+  "bytes": 0,
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ },
+ "README.md": {
+  "bytes": 703,
+  "sha256": "127735a8150d0bb573c8319746f63e94a7dc986098774fb8c89d26249d9f9110"
+ },
+ "gesture/pipeline.js": {
+  "bytes": 6580,
+  "sha256": "e3a62ed28a0a604d280e327a4e5732a6ee0711a2f53c2e611851af364bf692a1"
+ },
+ "gesture/recognizer.js": {
+  "bytes": 6886,
+  "sha256": "a268e8211656c7362299dbf5f06c414f07e0bfedb30a46919d11782b4d2a4f8e"
+ },
+ "gesture/state-machine.js": {
+  "bytes": 3688,
+  "sha256": "05a70a16da4d039893c9c66f70a184679305fb5b153295c8a7b582c071058b9c"
+ },
+ "gesture-lab.html": {
+  "bytes": 21872,
+  "sha256": "b8e841177d560e6c8d23be6a4b07a6ed075288b87f39ccc74711940f9a308ccd"
+ },
+ "index.html": {
+  "bytes": 8607897,
+  "sha256": "0ee41ea98691d7ea6878786e20275b5c50daa880f903198764826f535fa88cf3"
+ },
+ "mediapipe/hand_landmarker.task": {
+  "bytes": 7819105,
+  "sha256": "fbc2a30080c3c557093b5ddfc334698132eb341044ccee322ccf8bcf3607cde1"
+ },
+ "mediapipe/vision_bundle.mjs": {
+  "bytes": 137809,
+  "sha256": "3252b10e0fd26c4095e4b6ee545c1c898120b3a3813388ecd4876abe6f1399a9"
+ },
+ "mediapipe/vision_wasm_internal.js": {
+  "bytes": 204284,
+  "sha256": "4a97e2520ba506c680ecd6ba6acfb146888afa0e2746d57f205352bc6ebb82eb"
+ },
+ "mediapipe/vision_wasm_internal.wasm": {
+  "bytes": 9574032,
+  "sha256": "f00ec4731faa23b3e714d00e88d4d10e2df5c0a427d3a2b4ae6e3526fdd14ef7"
+ },
+ "mediapipe/vision_wasm_nosimd_internal.js": {
+  "bytes": 204137,
+  "sha256": "927def7b465c51b86e4b3060f93646aca4e27121f4b8fc0483786e407ea9cf1f"
+ },
+ "mediapipe/vision_wasm_nosimd_internal.wasm": {
+  "bytes": 9448638,
+  "sha256": "3821ea9b1f7fb8c549ef2a064ef5c85750bf375c545a49fd6eea0df44a95f1f4"
+ },
+ "vendor/fonts/LICENSE-Fredoka.txt": {
+  "bytes": 4387,
+  "sha256": "9bbd4f5f107895d5a213579b73821fadd05105241cf4360e86050199fcfd6034"
+ },
+ "vendor/fonts/LICENSE-Nunito.txt": {
+  "bytes": 4491,
+  "sha256": "40991bfa02ac620aae16dc527f3c47765a25e43f270d4c301ee6ab663a8d9015"
+ },
+ "vendor/fonts/fonts.css": {
+  "bytes": 3899,
+  "sha256": "6cc3f2ccbe9ca360afb236f9cc4129dbbca0b6d8193d893ec1de691b250b7303"
+ },
+ "vendor/fonts/fredoka-latin-500-normal.woff2": {
+  "bytes": 16248,
+  "sha256": "7d76e44a94b02894b384fc98c124ccf521d8460bf0e0bbe31c1b6b4be6099620"
+ },
+ "vendor/fonts/fredoka-latin-600-normal.woff2": {
+  "bytes": 16468,
+  "sha256": "b62f2898de150f019961f4884a49f83dcd2ce74375be5e0992c594ebb8f30294"
+ },
+ "vendor/fonts/fredoka-latin-700-normal.woff2": {
+  "bytes": 15900,
+  "sha256": "ee61b48acab42fcfee4e1c398b03bbae7e09d1be8471779c440a97dc85118c16"
+ },
+ "vendor/fonts/fredoka-latin-ext-500-normal.woff2": {
+  "bytes": 2712,
+  "sha256": "e3f138324656a6bf1b5b2eff22f86aa5a7b82f49e957aa1fd5e8218182781d29"
+ },
+ "vendor/fonts/fredoka-latin-ext-600-normal.woff2": {
+  "bytes": 2692,
+  "sha256": "d7d22ddf9d13a2b8db2a77c4eb14f8d5b12832451540393d6091b2e67c6189c3"
+ },
+ "vendor/fonts/fredoka-latin-ext-700-normal.woff2": {
+  "bytes": 2676,
+  "sha256": "e5272989e860007c4dbb922c687aeea68d74ac0f4bcc6c052f1c21cffaec637d"
+ },
+ "vendor/fonts/nunito-latin-500-normal.woff2": {
+  "bytes": 16428,
+  "sha256": "23ae3083dbdaeabf3b9969a3947ddf5d5614683516e28ffa110ca4eb6192a9ff"
+ },
+ "vendor/fonts/nunito-latin-700-normal.woff2": {
+  "bytes": 16228,
+  "sha256": "fa89300b9bbb3bd0f60d6991aa055965d98e2ccca27bf8688fe0c39cdc796846"
+ },
+ "vendor/fonts/nunito-latin-800-normal.woff2": {
+  "bytes": 16520,
+  "sha256": "2363d3ed037283ebb961e8c4b4917e40a8bc8853cf9965cf1ea7b4daa1df630a"
+ },
+ "vendor/fonts/nunito-latin-ext-500-normal.woff2": {
+  "bytes": 15976,
+  "sha256": "343e7adc7b39f89e71c6dc53244eb7e5f70a3c972b93fa06e8f57ede6236405b"
+ },
+ "vendor/fonts/nunito-latin-ext-700-normal.woff2": {
+  "bytes": 15820,
+  "sha256": "0a4e4a02e13c6b36cf2a3ce236cc5ad8c0b93352fc5fb380860161557a9b199e"
+ },
+ "vendor/fonts/nunito-latin-ext-800-normal.woff2": {
+  "bytes": 16284,
+  "sha256": "39f54b55b83547df294894bdf68d75c11e2ac626bc0c88b73ba8993422de2fe7"
+ },
+ "vendor/three/LICENSE": {
+  "bytes": 1081,
+  "sha256": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d"
+ },
+ "vendor/three/build/three.module.js": {
+  "bytes": 1272972,
+  "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
+ },
+ "vendor/three/examples/jsm/controls/OrbitControls.js": {
+  "bytes": 30973,
+  "sha256": "7aa4372a5ec60b49988edde81014c7361740a57962d032003ca33301c1f4edd5"
+ },
+ "vendor/three/examples/jsm/libs/meshopt_decoder.module.js": {
+  "bytes": 24850,
+  "sha256": "01f48524f4bac6141eaba07e94cc36e7ee56f311796fa6117c159842941b0468"
+ },
+ "vendor/three/examples/jsm/loaders/GLTFLoader.js": {
+  "bytes": 108522,
+  "sha256": "d073b438e6a07e1359741dd5d6c76c953420cc0d4fd84eb1bdde94315540e6a3"
+ },
+ "vendor/three/examples/jsm/utils/BufferGeometryUtils.js": {
+  "bytes": 31906,
+  "sha256": "9be041e96308775d00e2695cc607645b9a9b64fd7c0e759dd8f7c00a8d92becb"
+ }
+}

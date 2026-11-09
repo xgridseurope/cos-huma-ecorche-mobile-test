@@ -1,0 +1,7 @@
+COS HUMA Écorché B v1.5.0 — phone/tablet layout TEST SITE (not the live version)
+source repo:   xgridseurope/cos-huma-ecorche
+source branch: feature/mobile-tablet-responsive
+source commit: 1c2b78e2a8307ce5ddd3a299b202952fda3556e3
+live site (unchanged, main 1ca4bc5): https://xgridseurope.github.io/cos-huma-ecorche/
+sha256 index.html       0ee41ea98691d7ea6878786e20275b5c50daa880f903198764826f535fa88cf3
+sha256 gesture-lab.html b8e841177d560e6c8d23be6a4b07a6ed075288b87f39ccc74711940f9a308ccd

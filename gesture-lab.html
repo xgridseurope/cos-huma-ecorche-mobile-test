@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COS HUMÀ · Laboratori de gestos (v1.5.0 · fase 2)</title>
+<style>
+body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#F5F0E8;color:#1B2A4A}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 18px;background:#1B2A4A;color:#fff}
+header h1{margin:0;font-size:18px}
+header small{opacity:.8}
+main{display:flex;flex-wrap:wrap;gap:16px;padding:16px;max-width:1300px;margin:0 auto}
+.col{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.card{background:#fff;border:1px solid #E2D7C4;border-radius:14px;padding:12px}
+.card h2{margin:0 0 8px;font-size:15px}
+.stage{position:relative;background:#000;border-radius:14px;overflow:hidden;aspect-ratio:4/3}
+.stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);object-fit:cover}
+#prompt{position:absolute;left:0;right:0;top:10px;text-align:center;font-size:clamp(22px,4vw,40px);font-weight:800;color:#fff;text-shadow:0 2px 8px #000}
+#countdown{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:18px;font-weight:700;color:#F5B83D;text-shadow:0 2px 6px #000}
+button{min-height:44px;padding:8px 14px;border-radius:10px;border:1px solid #1B2A4A;background:#fff;color:#1B2A4A;font-weight:700;cursor:pointer}
+button.primary{background:#C8244A;border-color:#C8244A;color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;font-size:13px}
+.kv b{font-weight:700}
+.hands{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.hand{border:2px solid #E2D7C4;border-radius:12px;padding:8px;font-size:13px}
+.hand.primary{border-color:#C8244A}
+.pose{font-size:26px;font-weight:800}
+#log{height:150px;overflow:auto;font:12px/1.4 ui-monospace,monospace;background:#0d1b2a;color:#d8f3dc;border-radius:10px;padding:8px;margin:0}
+#result{font:12px/1.45 ui-monospace,monospace;white-space:pre-wrap;margin:0}
+.warn{color:#9a2a2a;font-weight:700}
+table{border-collapse:collapse;font-size:13px;width:100%}
+td,th{border-bottom:1px solid #eee;padding:4px 6px;text-align:left}
+</style>
+</head>
+<body>
+<header><div><h1>COS HUMÀ · 手势实验室 Laboratori de gestos</h1><small>v1.5.0 第二阶段 · 只识别手势，不加载、不修改任何 3D 模型</small></div><div class="row"><button id="startCam" class="primary">📷 启动摄像头</button><button id="stopCam" disabled>■ 关闭摄像头</button></div></header>
+<main>
+<div class="col">
+<div class="stage"><video id="video" playsinline muted></video><canvas id="overlay"></canvas><div id="prompt"></div><div id="countdown"></div></div>
+<div class="card"><h2>状态</h2><div class="kv" id="status"></div></div>
+<div class="card"><h2>识别结果（实时）</h2><div class="hands" id="hands"></div></div>
+</div>
+<div class="col">
+<div class="card"><h2>① 左右手校准</h2>
+<p style="margin:0 0 8px;font-size:13px">先只举左手 3 秒，再只举右手 3 秒。结果保存在本机，之后自动使用。</p>
+<div class="row"><button id="calib" disabled>开始校准</button><span id="calibResult"></span></div></div>
+<div class="card"><h2>② 引导测试（张手 / 握拳 / 捏合 / 放松）</h2>
+<div class="row" style="font-size:13px"><label>每种手势次数 <select id="nPer"><option>6</option><option selected>10</option><option>15</option><option>20</option></select></label><label>测试者 <input id="who" placeholder="例如 Emily / Simon" style="width:140px"></label><label>设备 <input id="device" placeholder="例如 iPad 第9代" style="width:140px"></label></div>
+<div class="row" style="margin-top:8px"><button id="runTest" class="primary" disabled>开始测试</button><button id="abortTest" disabled>中止</button><button id="exportRec" disabled>⬇ 导出测试记录 JSON</button></div>
+</div>
+<div class="card"><h2>③ 结果</h2><div id="resultTable"></div><pre id="result"></pre></div>
+<div class="card"><h2>④ 复现：重放一份测试记录</h2><div class="row"><input type="file" id="replayFile" accept="application/json"><span id="replayResult"></span></div></div>
+<div class="card"><h2>命令日志（只记录，不执行）</h2><pre id="log"></pre></div>
+</div>
+</main>
+<script type="module">
+import { GesturePipeline, scoreTrials, PIPELINE_VERSION } from './gesture/pipeline.js';
+const $ = (id) => document.getElementById(id);
+const CAL_KEY = 'cos_huma_b_hand_calibration';
+const LABEL = { open: '✋ 张手 · Mà oberta', fist: '✊ 握拳 · Puny', pinch: '👌 捏合 · Pinça', neutral: '〰 放松 · Relaxada' };
+const PROMPT = { open: '✋ Obre la mà · 张开手', fist: '✊ Tanca el puny · 握拳', pinch: '👌 Pinça: punta del polze amb punta de l’índex · 捏合：拇指尖碰食指尖', rest: '〰 Mà relaxada i quieta, sense gest · 手自然放松不动，不做任何手势' };
+// protocol v2: the prep countdown never names the next gesture, and the state machine is re-armed at performStart
+const PROTOCOL = { version: 'v2', prepShowsGesture: false, rearmAtPerformStart: true, prepMs: 1500, performMs: 3000, tailMs: 600 };
+const S = { tracker: null, stream: null, delegate: null, running: false, raf: 0, lastInfer: 0, lastVideoTime: -1, fps: 0, frames: 0, fpsT: 0,
+  calibration: JSON.parse(localStorage.getItem(CAL_KEY) || 'null'), pipe: null, test: null, record: null, error: null, onFrame: null };
+S.pipe = new GesturePipeline({ swap: !!S.calibration?.swap });
+const log = (m) => { const l = $('log'); l.textContent += `${new Date().toLocaleTimeString()}  ${m}\n`; l.scrollTop = l.scrollHeight; };
+
+function renderStatus() {
+  const kv = [['安全上下文 (HTTPS/localhost)', window.isSecureContext ? '是' : '<span class="warn">否：摄像头无法使用</span>'],
+    ['摄像头', S.stream ? '运行中' : '关闭'], ['推理后端', S.delegate || '—'], ['推理帧率', S.running ? S.fps.toFixed(1) + ' fps' : '—'],
+    ['左右手校准', S.calibration ? (S.calibration.swap ? '已校准：需要交换 MediaPipe 标签' : '已校准：MediaPipe 标签直接可用') + ' · ' + new Date(S.calibration.when).toLocaleString() : '<span class="warn">未校准</span>'],
+    ['版本', `pipeline ${PIPELINE_VERSION}`], ['3D 模型', '本页不加载（第二阶段只识别）'], ['错误', S.error ? `<span class="warn">${S.error}</span>` : '—']];
+  $('status').innerHTML = kv.map(([k, v]) => `<b>${k}</b><span>${v}</span>`).join('');
+  $('startCam').disabled = !!S.stream; $('stopCam').disabled = !S.stream;
+  $('calib').disabled = !S.running || !!S.test || !!S.calibrating; $('runTest').disabled = !S.running || !!S.test || !!S.calibrating; $('abortTest').disabled = !S.test; $('exportRec').disabled = !S.record;
+}
+function renderHands(out) {
+  const by = Object.fromEntries((out?.hands || []).map((h) => [h.label, h]));
+  $('hands').innerHTML = ['Left', 'Right'].map((lab) => { const h = by[lab];
+    return `<div class="hand${out && out.primary === lab ? ' primary' : ''}"><b>${lab === 'Left' ? '左手 Esquerra' : '右手 Dreta'}</b>${h ? `<div class="pose">${LABEL[h.pose]}</div><div>置信度 ${h.confidence.toFixed(2)} · MediaPipe 原始标签 ${h.raw} (${(h.score || 0).toFixed(2)})</div><div>伸直度 ${h.features.straight.join(' / ')} · 捏合比 ${h.features.pinchRatio}</div>` : '<div class="pose" style="opacity:.35">—</div><div>未检测到</div>'}</div>`; }).join('')
+    + `<div style="grid-column:1/-1;font-size:13px">状态机：<b>${out?.smState || '—'}</b>${out && out.primary ? ' · 驱动手：' + out.primary : ''}</div>`;
+}
+const CHAINS = [[0, 1, 2, 3, 4], [0, 5, 6, 7, 8], [0, 9, 10, 11, 12], [0, 13, 14, 15, 16], [0, 17, 18, 19, 20], [5, 9, 13, 17]];
+function drawOverlay(res) {
+  const c = $('overlay'), v = $('video'); c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
+  const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height);
+  (res.landmarks || []).forEach((pts, i) => {
+    const raw = res.handedness?.[i]?.[0]?.categoryName; const lab = S.calibration?.swap ? (raw === 'Left' ? 'Right' : 'Left') : raw;
+    g.strokeStyle = lab === 'Left' ? '#F5B83D' : '#50e2f4'; g.lineWidth = 3;
+    for (const ch of CHAINS) { g.beginPath(); ch.forEach((id, j) => { const p = pts[id]; j ? g.lineTo(p.x * c.width, p.y * c.height) : g.moveTo(p.x * c.width, p.y * c.height); }); g.stroke(); }
+    g.fillStyle = '#fff'; for (const p of pts) { g.beginPath(); g.arc(p.x * c.width, p.y * c.height, 3, 0, 7); g.fill(); }
+  });
+}
+// Convert a MediaPipe result into the pipeline's recorded frame format.
+function toFrame(res, t) {
+  return { t, hands: (res.worldLandmarks || []).map((w, i) => ({ raw: res.handedness?.[i]?.[0]?.categoryName || '?', score: +(res.handedness?.[i]?.[0]?.score || 0).toFixed(3),
+    world: w.map((p) => [+p.x.toFixed(5), +p.y.toFixed(5), +p.z.toFixed(5)]), image: (res.landmarks?.[i] || []).map((p) => [+p.x.toFixed(4), +p.y.toFixed(4), +(p.z || 0).toFixed(4)]) })) };
+}
+async function loop(ts) {
+  S.raf = 0; if (!S.running) return;
+  if (document.hidden) return;                       // resumed by visibilitychange
+  S.raf = requestAnimationFrame(loop);
+  const v = $('video');
+  if (v.readyState < 2 || v.currentTime === S.lastVideoTime || ts - S.lastInfer < 66) return;   // ~15 inferences/s
+  S.lastVideoTime = v.currentTime; S.lastInfer = ts;
+  let res; try { res = S.tracker.detectForVideo(v, performance.now()); } catch (e) { S.error = String(e.message || e); stopCamera(); renderStatus(); return; }
+  const t = Math.round(performance.now());
+  const frame = toFrame(res, t), out = S.pipe.process(frame);
+  drawOverlay(res); renderHands(out);
+  for (const c of out.commands) if (c.type !== 'GRAB_MOVE') log(`命令 ${c.type}（只记录，不执行）`);
+  S.frames++; if (t - S.fpsT > 1000) { S.fps = S.frames * 1000 / (t - S.fpsT); S.frames = 0; S.fpsT = t; renderStatus(); }
+  if (S.onFrame) S.onFrame(frame, out);
+}
+async function startCamera() {
+  S.error = null; renderStatus();
+  if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) { S.error = '需要 HTTPS 或 localhost'; renderStatus(); return false; }
+  try {
+    if (!S.tracker) {
+      const lib = await import('./mediapipe/vision_bundle.mjs');
+      const vision = await lib.FilesetResolver.forVisionTasks('./mediapipe');
+      const opts = { baseOptions: { modelAssetPath: './mediapipe/hand_landmarker.task', delegate: 'GPU' }, runningMode: 'VIDEO', numHands: 2, minHandDetectionConfidence: 0.55, minHandPresenceConfidence: 0.55, minTrackingConfidence: 0.5 };
+      try { S.tracker = await lib.HandLandmarker.createFromOptions(vision, opts); S.delegate = 'GPU'; }
+      catch (e) { log('GPU 不可用，改用 CPU：' + (e.message || e)); opts.baseOptions.delegate = 'CPU'; S.tracker = await lib.HandLandmarker.createFromOptions(vision, opts); S.delegate = 'CPU'; }
+    }
+    S.stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30 } } });
+    const v = $('video'); v.srcObject = S.stream; await v.play();
+    if (v.videoWidth && v.videoHeight) S.pipe.opts.aspect = v.videoWidth / v.videoHeight;   // image pinch distance is aspect-corrected
+    S.running = true; S.lastVideoTime = -1; S.fpsT = performance.now(); S.pipe.reset(); log(`摄像头已启动（${S.delegate}）`);
+    S.raf = requestAnimationFrame(loop); renderStatus(); return true;
+  } catch (e) { S.error = String(e.message || e); log('启动失败：' + S.error); stopCamera(); renderStatus(); return false; }
+}
+function stopCamera() {
+  S.running = false; cancelAnimationFrame(S.raf); S.raf = 0;
+  if (S.test) abortTest('摄像头已关闭');
+  if (S.stream) { for (const t of S.stream.getTracks()) t.stop(); S.stream = null; log('摄像头已关闭，视频轨道已释放'); }
+  $('video').srcObject = null; S.pipe.reset(); renderHands(null); renderStatus();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.running && !S.raf) { S.lastVideoTime = -1; $('video').play().catch(() => {}); S.raf = requestAnimationFrame(loop); log('页面恢复，继续识别'); } else if (document.hidden && S.running) log('页面隐藏，暂停识别（摄像头保持）'); });
+window.addEventListener('pagehide', stopCamera);
+$('startCam').onclick = startCamera; $('stopCam').onclick = stopCamera;
+
+// ---- calibration: count MediaPipe raw labels while ONLY the left hand, then ONLY the right hand, is shown
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// Countdowns follow the wall clock, so a slow device cannot stretch a 3 s window.
+async function waitUntil(deadline, onTick, alive = () => true) { while (alive()) { const left = deadline - performance.now(); if (left <= 0) return; if (onTick) onTick(left); await sleep(Math.min(100, left)); } }
+async function collect(prompt, ms) {
+  const votes = { Left: 0, Right: 0 }; $('prompt').textContent = prompt;
+  S.onFrame = (f) => { if (f.hands.length === 1) votes[f.hands[0].raw] = (votes[f.hands[0].raw] || 0) + 1; };
+  await waitUntil(performance.now() + ms, (left) => { $('countdown').textContent = (left / 1000).toFixed(1) + ' s'; });
+  S.onFrame = null; $('prompt').textContent = ''; $('countdown').textContent = ''; return votes;
+}
+$('calib').onclick = async () => {
+  S.calibrating = true; $('calibResult').textContent = '校准中…'; renderStatus();
+  try {
+  await collect('🖐 Aixeca NOMÉS la mà ESQUERRA · 只举左手', 1500); const L = await collect('🖐 Aixeca NOMÉS la mà ESQUERRA · 只举左手', 3000);
+  await collect('🖐 Ara NOMÉS la mà DRETA · 现在只举右手', 1500); const R = await collect('🖐 Ara NOMÉS la mà DRETA · 现在只举右手', 3000);
+  const nL = L.Left + L.Right, nR = R.Left + R.Right;
+  if (nL < 15 || nR < 15) { $('calibResult').innerHTML = `<span class="warn">帧数不够（左 ${nL} / 右 ${nR}），请重试</span>`; return; }
+  const leftSaysLeft = L.Left / nL, rightSaysRight = R.Right / nR;
+  let swap = null;
+  if (leftSaysLeft > 0.8 && rightSaysRight > 0.8) swap = false; else if (leftSaysLeft < 0.2 && rightSaysRight < 0.2) swap = true;
+  if (swap === null) { $('calibResult').innerHTML = `<span class="warn">结果不一致（左手被识别为 Left ${Math.round(leftSaysLeft * 100)}%，右手为 Right ${Math.round(rightSaysRight * 100)}%），请重试</span>`; return; }
+  S.calibration = { swap, when: Date.now(), leftVotes: L, rightVotes: R, ua: navigator.userAgent };
+  localStorage.setItem(CAL_KEY, JSON.stringify(S.calibration)); S.pipe.setSwap(swap);
+  $('calibResult').textContent = swap ? '完成：这台设备需要交换 MediaPipe 的左右标签' : '完成：MediaPipe 的左右标签直接可用';
+  log('校准 ' + JSON.stringify({ swap, L, R }));
+  } finally { S.calibrating = false; renderStatus(); }
+};
+
+// ---- guided test protocol
+function plan(nPer) { const list = []; for (const k of ['open', 'fist', 'pinch', 'rest']) for (let i = 0; i < nPer; i++) list.push(k);
+  for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; } return list; }
+function abortTest(why) { if (!S.test) return; S.test.aborted = why; S.onFrame = null; $('prompt').textContent = ''; $('countdown').textContent = ''; log('测试中止：' + why); S.test = null; renderStatus(); }
+$('abortTest').onclick = () => abortTest('手动中止');
+$('runTest').onclick = async () => {
+  if (!S.calibration && !confirm('还没有做左右手校准。单手模式下不影响张手/握拳/捏合的识别，仍然继续吗？')) return;
+  const seq = plan(+$('nPer').value), trials = [];
+  S.test = { seq }; S.pipe.reset(); renderStatus(); log(`开始测试：${seq.length} 次`);
+  for (let i = 0; i < seq.length && S.test; i++) {
+    const exp = seq[i], tr = { index: i, expected: exp, frames: [], outputs: [], commands: [] };
+    S.onFrame = (f, o) => { tr.frames.push(f); tr.outputs.push({ t: o.t, primary: o.primary, smState: o.smState, hands: o.hands.map((h) => ({ label: h.label, pose: h.pose, confidence: +h.confidence.toFixed(3) })) }); tr.commands.push(...o.commands.filter((c) => c.type !== 'GRAB_MOVE')); };
+    $('prompt').textContent = `${i + 1}/${seq.length} · 〰 Relaxa la mà · 先放松，等提示`;
+    await waitUntil(performance.now() + 1500, (left) => { $('countdown').textContent = '先放松 ' + (left / 1000).toFixed(1) + ' s'; }, () => !!S.test);
+    tr.performStart = Math.round(performance.now()); S.pipe.rearm(); $('prompt').textContent = `${i + 1}/${seq.length} · ${PROMPT[exp]}`;
+    await waitUntil(tr.performStart + 3000, (left) => { $('countdown').textContent = '保持 ' + (left / 1000).toFixed(1) + ' s'; }, () => !!S.test);
+    tr.performEnd = Math.round(performance.now());
+    await waitUntil(performance.now() + 600, null, () => !!S.test);   // late commands still count for this trial
+    trials.push(tr);
+  }
+  S.onFrame = null; $('prompt').textContent = ''; $('countdown').textContent = '';
+  if (!S.test) return;
+  S.test = null;
+  const score = scoreTrials(trials);
+  // actual inference rate during the test, from the recorded frame timestamps
+  const gaps = trials.flatMap((tr) => tr.frames.slice(1).map((f, i) => f.t - tr.frames[i].t)).filter((g) => g > 0).sort((x, y) => x - y);
+  const q = (p) => gaps.length ? gaps[Math.min(gaps.length - 1, Math.floor(p * gaps.length))] : null;
+  const span = trials.reduce((s, tr) => s + (tr.frames.length > 1 ? tr.frames[tr.frames.length - 1].t - tr.frames[0].t : 0), 0);
+  const nFrames = trials.reduce((s, tr) => s + Math.max(0, tr.frames.length - 1), 0);
+  const perf = { avgFps: span ? +(nFrames * 1000 / span).toFixed(1) : null, medianFps: q(0.5) ? +(1000 / q(0.5)).toFixed(1) : null, p10Fps: q(0.9) ? +(1000 / q(0.9)).toFixed(1) : null, frames: nFrames, delegate: S.delegate, video: { w: $('video').videoWidth, h: $('video').videoHeight } };
+  S.record = { kind: 'cos-huma-gesture-record', created: new Date().toISOString(), who: $('who').value, device: $('device').value, ua: navigator.userAgent,
+    delegate: S.delegate, calibration: S.calibration, versions: S.pipe.versions, protocol: PROTOCOL, perf, score, trials };
+  showScore(score, $('result'), $('resultTable')); log('测试完成'); renderStatus();
+};
+function showScore(score, pre, tableEl) {
+  const s = score.summary, f = score.frameAccuracy, row = (k, name) => s[k] ? `<tr><td>${name}</td><td>${s[k].trials}</td><td><b>${s[k].successRate}%</b></td><td>${s[k].missRate}%</td><td>${s[k].misfireRate}%</td><td>${s[k].duplicateRate}%</td><td>${s[k].medianLatencyMs ?? '—'} ms</td><td>${f[k]?.correct ?? '—'}%</td></tr>` : '';
+  tableEl.innerHTML = `<table><tr><th>手势</th><th>次数</th><th>成功率</th><th>漏识别</th><th>误判（触发了别的命令）</th><th>重复触发</th><th>中位延迟</th><th>逐帧正确率</th></tr>${row('open', '✋ 张手')}${row('fist', '✊ 握拳')}${row('pinch', '👌 捏合')}</table>`
+    + (s.rest ? `<p>放松手误触发率：<b>${s.rest.falseTriggerRate}%</b>（${s.rest.trials} 次放松测试） · 放松手逐帧判为“放松”：${f.rest?.correct}%</p>` : '')
+    + (S.record?.perf ? `<p>实际推理帧率：平均 <b>${S.record.perf.avgFps} fps</b> · 中位 ${S.record.perf.medianFps} · 最慢 10% ${S.record.perf.p10Fps} fps · 后端 ${S.record.perf.delegate}</p>` : '');
+  pre.textContent = JSON.stringify(f, null, 1);
+}
+$('exportRec').onclick = () => {
+  const blob = new Blob([JSON.stringify(S.record)], { type: 'application/json' }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `cos-huma-gesture-record-${(S.record.device || 'device').replace(/\W+/g, '_')}-${S.record.created.slice(0, 19).replace(/[:T]/g, '-')}.json`; a.click();
+};
+// ---- replay: re-run a recording through the current pipeline and compare with the recorded result
+function replay(rec) {
+  const pipe = new GesturePipeline({ swap: !!rec.calibration?.swap, oneHand: rec.versions?.opts?.oneHand ?? true, smoothing: rec.versions?.opts?.smoothing ?? 0.5, aspect: rec.perf?.video?.w && rec.perf?.video?.h ? rec.perf.video.w / rec.perf.video.h : 4 / 3 });
+  const rearm = rec.protocol?.rearmAtPerformStart === true;
+  const trials = rec.trials.map((tr) => { const outs = [], cmds = []; let armed = false; for (const f of tr.frames) { if (rearm && !armed && f.t >= tr.performStart) { pipe.rearm(); armed = true; } const o = pipe.process(f); outs.push({ t: o.t, primary: o.primary, hands: o.hands.map((h) => ({ label: h.label, pose: h.pose })) }); cmds.push(...o.commands.filter((c) => c.type !== 'GRAB_MOVE')); }
+    return { expected: tr.expected, performStart: tr.performStart, performEnd: tr.performEnd, outputs: outs, commands: cmds }; });
+  const score = scoreTrials(trials);
+  return { score, identical: JSON.stringify(score.summary) === JSON.stringify(rec.score?.summary) };
+}
+$('replayFile').onchange = async (e) => {
+  const file = e.target.files?.[0]; if (!file) return;
+  const rec = JSON.parse(await file.text()); const r = replay(rec);
+  showScore(r.score, $('result'), $('resultTable'));
+  $('replayResult').textContent = r.identical ? '✓ 重放结果与记录完全一致' : '⚠ 重放结果与记录不同（可能是识别参数已更新）';
+};
+window.GESTURE_LAB = { startCamera, stopCamera, replay, get record() { return S.record; }, get state() { return { running: S.running, delegate: S.delegate, tracks: S.stream ? S.stream.getTracks().map((t) => t.readyState) : [], calibration: S.calibration, error: S.error, hasThree: typeof window.THREE !== 'undefined' }; } };
+renderStatus(); renderHands(null);
+</script>
+</body>
+</html>

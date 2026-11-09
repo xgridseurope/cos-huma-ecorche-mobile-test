@@ -1,0 +1,101 @@
+/* v1.5.0 welcome: X-ray magnifier on the riddle wall */
+#emilyWelcome.ew{position:fixed;inset:0;z-index:190;display:block;padding:0;overflow:auto;background:#F5F0E8;color:#1B2A4A;font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif}
+#emilyWelcome.ew[hidden]{display:none!important}
+#emilyWelcome.ew .ew-wrap{min-height:100vh;display:flex;flex-direction:column;max-width:1240px;margin:0 auto;padding:0 24px;box-sizing:border-box}
+#emilyWelcome.ew .ew-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:18px 0}
+#emilyWelcome.ew .ew-brand{display:flex;align-items:center;gap:10px}
+#emilyWelcome.ew .ew-mark{position:relative;width:42px;height:42px;border-radius:11px;background:#1B2A4A;color:#F5F0E8;display:inline-flex;align-items:center;justify-content:center;font:600 33px/1 'Fredoka',system-ui,sans-serif;padding-bottom:5px;box-sizing:border-box}
+#emilyWelcome.ew .ew-mark svg{position:absolute;right:6px;top:6px;width:11px;height:11px}
+#emilyWelcome.ew .ew-word{font:600 25px/1 'Fredoka',system-ui,sans-serif;letter-spacing:-.5px}
+#emilyWelcome.ew .ew-sep{width:1px;height:22px;background:#CFC4B2}
+#emilyWelcome.ew .ew-app{font:600 17px/1 'Fredoka',system-ui,sans-serif;letter-spacing:2px;color:#C8244A}
+#emilyWelcome.ew .ew-slogan{margin:0;font-size:14px;font-weight:700;color:#6E6258}
+#emilyWelcome.ew .ew-main{flex:1;display:flex;flex-wrap:wrap;align-items:center;gap:28px;padding:4px 0 18px}
+#emilyWelcome.ew .ew-left{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:18px}
+#emilyWelcome.ew .ew-left h2{margin:0;font:700 clamp(40px,6vw,68px)/1 'Fredoka',system-ui,sans-serif;letter-spacing:-1px;color:#1B2A4A}
+#emilyWelcome.ew .ew-accent{color:#C8244A}
+#emilyWelcome.ew .ew-sub{margin:0;font-size:19px;line-height:1.45;color:#3A4660;max-width:30rem}
+#emilyWelcome.ew .ew-sub strong{color:#C8244A}
+#emilyWelcome.ew .ew-found p{margin:0 0 8px;font-size:15px;font-weight:800}
+#emilyWelcome.ew .ew-chips{display:flex;flex-wrap:wrap;gap:8px}
+#emilyWelcome.ew .ew-chip{min-width:44px;height:40px;box-sizing:border-box;padding:0 14px;border-radius:20px;display:inline-flex;align-items:center;justify-content:center;font:600 16px 'Fredoka',system-ui,sans-serif;background:#fff;color:#1B2A4A;border:2px solid #D9CFBF}
+#emilyWelcome.ew .ew-chip.on{background:#C8244A;color:#fff;border-color:#C8244A}
+#emilyWelcome.ew .ew-choose{margin:4px 0 0;font:600 21px 'Fredoka',system-ui,sans-serif}
+#emilyWelcome.ew .ew-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+#emilyWelcome.ew .ew-card{all:unset;box-sizing:border-box;cursor:pointer;border-radius:22px;padding:18px;min-height:128px;display:flex;flex-direction:column;gap:7px;transition:transform .18s,box-shadow .18s}
+#emilyWelcome.ew .ew-card:hover{transform:translateY(-4px) rotate(-1deg);box-shadow:0 10px 24px rgba(27,42,74,.18)}
+#emilyWelcome.ew .ew-card:focus-visible{outline:3px solid #F5B83D;outline-offset:3px}
+#emilyWelcome.ew .ew-card svg{width:32px;height:32px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#emilyWelcome.ew .ew-card b{font:600 21px 'Fredoka',system-ui,sans-serif}
+#emilyWelcome.ew .ew-card span{font-size:14px;line-height:1.35}
+#emilyWelcome.ew .ew-c1{background:#1B2A4A;color:#fff}.ew-c1 svg{stroke:#F5B83D}.ew-c1 span{color:#D6DDEA}
+#emilyWelcome.ew .ew-c2{background:#C8244A;color:#fff}.ew-c2 svg{stroke:#fff}.ew-c2 span{color:#FFE3E9}
+#emilyWelcome.ew .ew-c3{background:#F5B83D;color:#1B2A4A}.ew-c3 svg{stroke:#1B2A4A}.ew-c3 span{color:#3A3220}
+@keyframes ewPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+#emilyWelcome.ew .ew-card.pulse{animation:ewPulse 1.3s ease-in-out infinite}
+#emilyWelcome.ew .ew-skip{all:unset;cursor:pointer;align-self:flex-start;font-size:15px;font-weight:700;text-decoration:underline;padding:10px 0;color:#1B2A4A}
+#emilyWelcome.ew .ew-skip:focus-visible{outline:3px solid #F5B83D}
+#emilyWelcome.ew .ew-right{flex:1.3 1 480px;min-width:0;display:flex;flex-direction:column;align-items:center;gap:12px}
+#emilyWelcome.ew .ew-stage{position:relative;width:100%;max-width:640px}
+#emilyWelcome.ew .ew-wall{width:100%;height:auto;display:block;border-radius:28px}
+#emilyWelcome.ew #ewStage{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:none;overflow:visible}
+#emilyWelcome.ew .ew-under{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
+@keyframes ewBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+#emilyWelcome.ew .ew-msg{margin:0;min-height:44px;box-sizing:border-box;padding:10px 20px;border-radius:22px;background:#fff;border:2px solid #E2D7C4;font:600 19px 'Fredoka',system-ui,sans-serif;animation:ewBob 2.4s ease-in-out infinite}
+#emilyWelcome.ew .ew-answer{all:unset;cursor:pointer;min-height:44px;box-sizing:border-box;padding:10px 20px;border-radius:22px;background:#C8244A;color:#fff;font:600 19px 'Fredoka',system-ui,sans-serif}
+#emilyWelcome.ew .ew-answer[aria-pressed="true"]{background:#1B2A4A}
+#emilyWelcome.ew .ew-answer:focus-visible{outline:3px solid #F5B83D;outline-offset:3px}
+#emilyWelcome.ew .ew-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding:10px 0 18px;font-size:13px;color:#6E6258}
+/* Phone + portrait tablet: one column, game first (title → hint → wall → found bones → cards → skip) */
+@media (max-width:1023px),(orientation:portrait) and (max-width:1199px){
+#emilyWelcome.ew .ew-wrap{padding:0 16px}
+#emilyWelcome.ew .ew-head{padding:12px 0 6px}
+#emilyWelcome.ew .ew-main{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:14px;padding:0 0 12px}
+#emilyWelcome.ew .ew-left,#emilyWelcome.ew .ew-right{display:contents}
+#emilyWelcome.ew .ew-left h2{order:1;font-size:clamp(34px,9vw,60px)}
+#emilyWelcome.ew .ew-sub{order:2;font-size:17px;max-width:none}
+#emilyWelcome.ew .ew-stage{order:3;align-self:center;width:min(100%,640px,calc((100svh - 190px) * 1.17))}
+#emilyWelcome.ew .ew-under{order:4}
+#emilyWelcome.ew .ew-found{order:5}
+#emilyWelcome.ew .ew-choose{order:6;margin:4px 0 0}
+#emilyWelcome.ew .ew-cards{order:7;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#emilyWelcome.ew .ew-skip{order:8}
+#emilyWelcome.ew .ew-card{min-height:0;padding:14px 12px;border-radius:18px}
+#emilyWelcome.ew .ew-card svg{width:26px;height:26px}
+#emilyWelcome.ew .ew-card b{font-size:18px}
+#emilyWelcome.ew .ew-card span{font-size:13px}
+#emilyWelcome.ew .ew-msg,#emilyWelcome.ew .ew-answer{font-size:17px}
+}
+@media (max-width:520px){
+#emilyWelcome.ew .ew-cards{grid-template-columns:1fr 1fr}
+#emilyWelcome.ew .ew-c1{grid-column:1 / -1}
+#emilyWelcome.ew .ew-word{font-size:22px}
+#emilyWelcome.ew .ew-app{font-size:15px;letter-spacing:1.5px}
+#emilyWelcome.ew .ew-slogan{font-size:13px}
+#emilyWelcome.ew .ew-chip{height:34px;padding:0 11px;font-size:14px}
+#emilyWelcome.ew .ew-under{gap:8px}
+#emilyWelcome.ew .ew-msg,#emilyWelcome.ew .ew-answer{font-size:16px;padding:9px 16px}
+}
+/* riddle toggle: phones only */
+#emilyWelcome.ew .ew-riddle-toggle{display:none}
+@media (max-width:740px){
+#emilyWelcome.ew .ew-head{padding:10px 0 2px;gap:4px}
+#emilyWelcome.ew .ew-slogan{font-size:12px}
+#emilyWelcome.ew .ew-main{gap:12px}
+#emilyWelcome.ew .ew-left h2{order:1;font-size:clamp(30px,8.5vw,44px)}
+#emilyWelcome.ew .ew-sub{order:2;font-size:16px}
+#emilyWelcome.ew .ew-choose{display:none}
+#emilyWelcome.ew .ew-cards{order:3;grid-template-columns:1fr 1fr}
+#emilyWelcome.ew .ew-c1{grid-column:1 / -1;min-height:96px;padding:18px}
+#emilyWelcome.ew .ew-c1 b{font-size:24px}
+#emilyWelcome.ew .ew-skip{order:4;align-self:center}
+#emilyWelcome.ew .ew-riddle-toggle{all:unset;box-sizing:border-box;order:5;display:flex;align-items:center;justify-content:center;min-height:48px;padding:10px 14px;border-radius:24px;border:2px dashed #C8244A;color:#1B2A4A;font:600 16px 'Fredoka',system-ui,sans-serif;cursor:pointer;text-align:center}
+#emilyWelcome.ew .ew-riddle-toggle:focus-visible{outline:3px solid #F5B83D;outline-offset:3px}
+#emilyWelcome.ew .ew-found{order:6}
+#emilyWelcome.ew .ew-stage{order:7}
+#emilyWelcome.ew .ew-under{order:8}
+#emilyWelcome.ew:not(.ew-riddle-open) .ew-found,#emilyWelcome.ew:not(.ew-riddle-open) .ew-stage,#emilyWelcome.ew:not(.ew-riddle-open) .ew-under{display:none}
+}
+@media (prefers-reduced-motion:reduce){#emilyWelcome.ew .ew-msg,#emilyWelcome.ew .ew-card.pulse{animation:none}}
+#emilyWelcome.ew h2{margin:0}
+#emilyWelcome.ew p{margin:0;color:inherit;font-size:inherit;line-height:inherit}
